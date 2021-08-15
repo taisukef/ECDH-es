@@ -2,7 +2,7 @@
 import { BigInteger } from "https://taisukef.github.io/jsbn-es/BigInteger.js";
 import { ECPointFp } from "./jsbn/ec.js";
 import * as Curves from "./jsbn/sec.js";
-import {} from "./crypto.js";	
+import { createHmac, randomBytes } from "./crypto.js";	
 import { Buffer } from "https://taisukef.github.io/buffer/Buffer.js";
 
 /*** Static functions ***/
@@ -25,7 +25,7 @@ exports.getBytesLength = function(curve) {
 
 exports.generateR = function(curve, callback) {
 	var n = curve.getN();
-	return crypto.randomBytes(n.bitLength(), callback);
+	return randomBytes(n.bitLength(), callback);
 };
 
 exports.generateKeys = function(curve, r) {
@@ -233,29 +233,29 @@ function deterministicGenerateK(hash, key, algorithm, length) {
 	v.fill(1);
 	k.fill(0);
 	
-	var hmac = crypto.createHmac(algorithm, k);
+	var hmac = createHmac(algorithm, k);
 	hmac.update(v);
 	hmac.update(new Buffer([0]));
 	hmac.update(key);
 	hmac.update(hash);
 	k = hmac.digest();
 	
-	hmac = crypto.createHmac(algorithm, k);
+	hmac = createHmac(algorithm, k);
 	hmac.update(v);
 	v = hmac.digest();
 	
-	hmac = crypto.createHmac(algorithm, k);
+	hmac = createHmac(algorithm, k);
 	hmac.update(v);
 	hmac.update(new Buffer([1]));
 	hmac.update(key);
 	hmac.update(hash);
 	k = hmac.digest();
 	
-	hmac = crypto.createHmac(algorithm, k);
+	hmac = createHmac(algorithm, k);
 	hmac.update(v);
 	v = hmac.digest();
 	
-	hmac = crypto.createHmac(algorithm, k);
+	hmac = createHmac(algorithm, k);
 	hmac.update(v);
 	v = hmac.digest();
 	

@@ -20,7 +20,7 @@ import { SHA256 } from "https://taisukef.github.io/sha256-es/SHA256.js";
 export const MAX_RANDOM_VALUES = 65536;
 export const MAX_SIZE = 4294967295;
 
-export const generateRandomBytes = (size) => {
+const generateRandomBytes = (size) => {
   if (size > MAX_SIZE) {
     throw new RangeError(
       `The value of "size" is out of range. It must be >= 0 && <= ${MAX_SIZE}. Received ${size}`,
@@ -40,7 +40,7 @@ export const generateRandomBytes = (size) => {
   return bytes;
 }
 
-export const randomBytes = (size, cb, buf) => {
+const randomBytes = (size, cb, buf) => {
   if (typeof cb === "function") {
     let err = null;
 		let bytes;
@@ -102,8 +102,4 @@ const createHmac = (algorithm, k) => {
 	return new Hmac(k);
 };
 
-//const crypto = {};
-crypto.createHmac = createHmac;
-crypto.randomBytes = randomBytes;
-
-//export { crypto };
+export { createHmac, randomBytes };
