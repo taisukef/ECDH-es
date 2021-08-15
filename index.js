@@ -1,12 +1,48 @@
-var crypto = require('crypto'),
-	BigInteger = require('jsbn').BigInteger,
-	ECPointFp = require('./jsbn/ec.js').ECPointFp;
+//import {crypto = require('crypto');
+import { BigInteger } from "https://taisukef.github.io/jsbn-es/BigInteger.js";
+import { ECPointFp } from "./jsbn/ec.js";
+import * as Curves from "./jsbn/sec.js";
+import crypto from "https://deno.land/std@0.104.0/node/crypto.ts";
+import { Buffer } from "https://deno.land/std@0.104.0/node/buffer.ts";
 
+import { HMAC } from "https://deno.land/x/hmac@v2.0.1/mod.ts";
+import { SHA256 } from "https://deno.land/x/hmac@v2.0.1/deps.ts";
+
+crypto.createHmac = (algorithm, k) => {
+	//const h = hmac(algorithm, k);
+	//console.log("hmac", h);
+	return new HMAC(new SHA256(), k);
+};
+
+/*
+import { SHA256 } from "https://taisukef.github.io/sha256-es/SHA256.js";
+
+// SHA256
+class Hmac {
+	update(bin) {
+		if ()
+		this.data = SHA256.digest(bin);
+		this.data = SHA256.digest(bin);
+	}
+	digest() {
+		return this.data;
+	}
+}
+
+crypto.createHmac = (algorithm, k) => {
+	if (algorithm != "sha256") {
+		throw new Error("unsupported algorithm: " + algorithm);
+	}
+	return new Hmac();
+};
+*/	
 
 /*** Static functions ***/
 
+const exports = {};
+
 exports.BigInteger = BigInteger;
-exports.Curves = require('./jsbn/sec.js');
+exports.Curves = Curves; // require('./jsbn/sec.js');
 
 exports.getCurve = function(name) {
 	if(!exports.Curves[name])
@@ -303,3 +339,6 @@ function deserializeSig(buf) {
 		s: new BigInteger(sBa.toString('hex'), 16)
 	};
 }
+
+const ecdh = exports;
+export { ecdh };

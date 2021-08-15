@@ -3,8 +3,8 @@
 // Only Fp curves implemented for now
 
 // Requires jsbn.js and jsbn2.js
-var BigInteger = require('jsbn').BigInteger
-var Barrett = BigInteger.prototype.Barrett
+import { BigInteger } from "https://taisukef.github.io/jsbn-es/BigInteger.js";
+const Barrett = BigInteger.prototype.Barrett
 
 // ----------------
 // ECFieldElementFp
@@ -344,10 +344,8 @@ ECCurveFp.prototype.reduce = curveReduce;
 ECCurveFp.prototype.decodePointHex = curveFpDecodePointHex;
 ECCurveFp.prototype.encodePointHex = curveFpEncodePointHex;
 
-var exports = {
-  ECCurveFp: ECCurveFp,
-  ECPointFp: ECPointFp,
-  ECFieldElementFp: ECFieldElementFp
-}
-
-module.exports = exports
+export {
+  ECCurveFp,
+  ECPointFp,
+  ECFieldElementFp
+};

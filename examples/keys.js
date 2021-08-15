@@ -1,7 +1,11 @@
-var ecdh = require('../index');
+import { ecdh } from "../index.js";
 
+//console.log(crypto)
+//console.log(await crypto.randomBytes(10));
+
+const type = "secp256r1";
 // Pick some curve
-var curve = ecdh.getCurve('secp128r1'),
+var curve = ecdh.getCurve(type),
 
 // Generate random key
 privateKey = ecdh.PrivateKey.generate(curve),

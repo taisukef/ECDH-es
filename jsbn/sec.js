@@ -1,10 +1,8 @@
 // Named EC curves
 
 // Requires ec.js, jsbn.js, and jsbn2.js
-var BigInteger = require('jsbn').BigInteger;
-var ECCurveFp = require('./ec.js').ECCurveFp;
-var ECPointFp = require('./ec.js').ECPointFp;
-
+import { BigInteger } from "https://taisukef.github.io/jsbn-es/BigInteger.js";
+import { ECCurveFp, ECPointFp } from "./ec.js";
 
 // ----------------
 // X9ECParameters
@@ -167,13 +165,13 @@ function secp256r1() {
     return new X9ECParameters(curve, G, n, h);
 }
 
-module.exports = {
-  "secp128r1":secp128r1,
-  "secp160k1":secp160k1,
-  "secp160r1":secp160r1,
-  "secp192k1":secp192k1,
-  "secp192r1":secp192r1,
-  "secp224r1":secp224r1,
-  "secp256k1":secp256k1,
-  "secp256r1":secp256r1
+export {
+  secp128r1,
+  secp160k1,
+  secp160r1,
+  secp192k1,
+  secp192r1,
+  secp224r1,
+  secp256k1,
+  secp256r1
 };

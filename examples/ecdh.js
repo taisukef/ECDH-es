@@ -1,7 +1,8 @@
-var ecdh = require('../index');
+import { ecdh } from "../index.js";
 
+const type = "secp256r1";
 // Pick some curve
-var curve = ecdh.getCurve('secp128r1'),
+var curve = ecdh.getCurve(type),
 
 // Generate random keys for Alice and Bob
 aliceKeys = ecdh.generateKeys(curve),
