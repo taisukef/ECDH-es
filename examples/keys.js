@@ -1,16 +1,16 @@
-import { ecdh } from "../index.js";
+import { ECDH } from "../ECDH.js";
 
 //console.log(crypto)
 //console.log(await crypto.randomBytes(10));
 
 const type = "secp256r1";
 // Pick some curve
-var curve = ecdh.getCurve(type),
+const curve = ECDH.getCurve(type);
 
 // Generate random key
-privateKey = ecdh.PrivateKey.generate(curve),
+const privateKey = ECDH.PrivateKey.generate(curve);
 // generate public key from private key
-publicKey = privateKey.derivePublicKey();
+const publicKey = privateKey.derivePublicKey();
 
 // Or you may get the key from a buffer:
 // privateKey = ecdh.PrivateKey.fromBuffer(curve, buf2);

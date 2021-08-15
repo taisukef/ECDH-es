@@ -1,23 +1,25 @@
-[ecdh.js](https://npmjs.org/package/ecdh)
-==========
+# ECDH-es
 
-Native [Node.js](http://nodejs.org/) module for ECDH and ECDSA.
+Pure JavaScript ES module implementation of ECDH and ECDSA for browsers and [Deno](https://deno.langd/).
 
+## Usage
 
-Install
-=======
+```
+import { ECDH } from "https://taisukef.github.io/ECDH-es/ECDH.js";
 
-	$ npm install ecdh
-
-
-Usage
-=====
+const type = "secp256r1";
+const curve = ECDH.getCurve(type);
+const keys = ECDH.generateKeys(curve);
+console.log(keys);
+```
 
 For usage details see the examples in the examples folder.
 
+## Base project
 
-License
-=======
+forked from [developmentil/ecdh: Native Node.js module for ECDH and ECDSA.](https://github.com/developmentil/ecdh)
+
+## License
 
 ecdh.js is freely distributable under the terms of the MIT license.
 

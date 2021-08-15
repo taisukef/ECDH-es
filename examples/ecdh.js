@@ -1,17 +1,17 @@
-import { ecdh } from "../index.js";
+import { ECDH } from "../ECDH.js";
 
 const type = "secp256r1";
 // Pick some curve
-var curve = ecdh.getCurve(type),
+const curve = ECDH.getCurve(type);
 
 // Generate random keys for Alice and Bob
-aliceKeys = ecdh.generateKeys(curve),
-bobKeys = ecdh.generateKeys(curve);
+const aliceKeys = ECDH.generateKeys(curve);
+const bobKeys = ECDH.generateKeys(curve);
 
 // Or you may get the keys from buffers:
 //	aliceKeys = {
-//		publicKey: ecdh.PublicKey.fromBuffer(curve, buf1),
-//		privateKey: ecdh.PrivateKey.fromBuffer(curve, buf2)
+//		publicKey: ECDH.PublicKey.fromBuffer(curve, buf1),
+//		privateKey: ECDH.PrivateKey.fromBuffer(curve, buf2)
 //	};
 
 console.log('Alice public key:', aliceKeys.publicKey.buffer.toString('hex'));
