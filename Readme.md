@@ -20,6 +20,7 @@ For usage details see the examples in the [examples](examples/) folder.
 - [Buffer](https://github.com/taisukef/buffer)
 - [SHA256](https://github.com/taisukef/sha256-es)
 - [BigInteger](https://github.com/taisukef/jsbn-es)
+- [Crypto.getRandomValues()](https://developer.mozilla.org/ja/docs/Web/API/Crypto/getRandomValues)
 
 ## Base project
 
