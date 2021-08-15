@@ -13,7 +13,13 @@ const keys = ECDH.generateKeys(curve);
 console.log(keys);
 ```
 
-For usage details see the examples in the examples folder.
+For usage details see the examples in the [examples](examples/) folder.
+
+## Devendencies
+
+- [Buffer](https://github.com/taisukef/buffer)
+- [SHA256](https://github.com/taisukef/sha256-es)
+- [BigInteger](https://github.com/taisukef/jsbn-es)
 
 ## Base project
 
