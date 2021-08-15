@@ -1,13 +1,13 @@
-import { SHA256 } from "https://taisukef.github.io/sha256-es/SHA256.js";
 import { ECDH } from "../ECDH.js";
+import { SHA256 } from "https://taisukef.github.io/sha256-es/SHA256.js";
 
+// Pick some curve
 //const type = "secp256k1";
 const type = "secp256r1";
-// Pick some curve
 const curve = ECDH.getCurve(type);
 		
 // Choose algorithm to the hash function
-const algorithm = 'sha256';
+const algorithm = "sha256";
 
 // Generate random keys for Alice
 const aliceKeys = ECDH.generateKeys(curve);

@@ -1,7 +1,7 @@
 import { ECDH } from "../ECDH.js";
 
-const type = "secp256r1";
 // Pick some curve
+const type = "secp256r1";
 const curve = ECDH.getCurve(type);
 
 // Generate random keys for Alice and Bob
@@ -20,10 +20,10 @@ console.log('Bob public key:', bobKeys.publicKey.buffer.toString('hex'));
 console.log('Bob private key:', bobKeys.privateKey.buffer.toString('hex'));
 
 // Alice generate the shared secret:
-var aliceSharedSecret = aliceKeys.privateKey.deriveSharedSecret(bobKeys.publicKey);
+const aliceSharedSecret = aliceKeys.privateKey.deriveSharedSecret(bobKeys.publicKey);
 console.log('shared secret:', aliceSharedSecret.toString('hex'));
 
 // Checking that Bob has the same secret:
-var bobSharedSecret = bobKeys.privateKey.deriveSharedSecret(aliceKeys.publicKey),
-equals = (bobSharedSecret.toString('hex') === aliceSharedSecret.toString('hex'));
+const bobSharedSecret = bobKeys.privateKey.deriveSharedSecret(aliceKeys.publicKey);
+const equals = (bobSharedSecret.toString('hex') === aliceSharedSecret.toString('hex'));
 console.log('Shared secrets are', equals ? 'equal :)' : 'not equal!!');

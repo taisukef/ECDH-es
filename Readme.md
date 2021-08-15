@@ -4,7 +4,7 @@ Pure JavaScript ES module implementation of ECDH and ECDSA for browsers and [Den
 
 ## Usage
 
-```
+```js
 import { ECDH } from "https://taisukef.github.io/ECDH-es/ECDH.js";
 
 const type = "secp256r1";

@@ -1,10 +1,7 @@
 import { ECDH } from "../ECDH.js";
 
-//console.log(crypto)
-//console.log(await crypto.randomBytes(10));
-
-const type = "secp256r1";
 // Pick some curve
+const type = "secp256r1";
 const curve = ECDH.getCurve(type);
 
 // Generate random key
