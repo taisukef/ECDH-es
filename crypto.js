@@ -1,5 +1,4 @@
 //import crypto from "https://deno.land/std@0.104.0/node/crypto.ts";
-import { Buffer } from "https://taisukef.github.io/buffer/Buffer.js";
 
 /*
 import { HMAC } from "https://deno.land/x/hmac@v2.0.1/mod.ts";
@@ -14,59 +13,102 @@ crypto.createHmac = (algorithm, k) => {
 
 import { SHA256 } from "https://taisukef.github.io/sha256-es/SHA256.js";
 
-// randam
+
+class ZeroableUint8Array extends Uint8Array {
+	constructor(...args) {
+		super(...args);
+		if (G_BUFFER_DEBUG) {
+			this.loc = new Error("Fault detected here");
+			G_ZEROBUFFERS.push( this );
+		}
+	}
+
+	static fromHexString(hexString, length) {
+		var za = new ZeroableUint8Array(length);
+		za.writeHexString(hexString, 0, length);
+		return za;
+	}
+
+	zero() {
+		this.fill(0);
+	}
+
+	writeHexString(hexString, pos, length) {
+		var byteArray = hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16));
+		
+		if (!!length) {
+			const remove = byteArray.length - length;
+			if (remove < 0) {
+				throw new RangeError(
+					`The value of \`length\` is out of range. It must be > 0 && <= ${byteArray.length}. Received ${length}`,
+				);
+			} else {
+				byteArray.splice(-remove, remove);
+			}
+		}
+
+		this.set(byteArray, pos);
+	}
+
+	toHexString() {
+		return this.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
+	}
+}
+
+
+// RANDOM routines
 
 export const MAX_RANDOM_VALUES = 65536;
 export const MAX_SIZE = 4294967295;
 
 const generateRandomBytes = (size) => {
-  if (size > MAX_SIZE) {
-    throw new RangeError(
-      `The value of "size" is out of range. It must be >= 0 && <= ${MAX_SIZE}. Received ${size}`,
-    );
-  }
-  const bytes = Buffer.allocUnsafe(size);
-  //Work around for getRandomValues max generation
-  if (size > MAX_RANDOM_VALUES) {
-    for (let generated = 0; generated < size; generated += MAX_RANDOM_VALUES) {
-      crypto.getRandomValues(
-        bytes.slice(generated, generated + MAX_RANDOM_VALUES),
-      );
-    }
-  } else {
-    crypto.getRandomValues(bytes);
-  }
-  return bytes;
+	if (size > MAX_SIZE) {
+		throw new RangeError(
+			`The value of "size" is out of range. It must be >= 0 && <= ${MAX_SIZE}. Received ${size}`,
+		);
+	}
+	const bytes = new ZeroableUint8Array(size);
+	//Work around for getRandomValues max generation
+	if (size > MAX_RANDOM_VALUES) {
+		for (let generated = 0; generated < size; generated += MAX_RANDOM_VALUES) {
+			crypto.getRandomValues(
+				bytes.slice(generated, generated + MAX_RANDOM_VALUES),
+			);
+		}
+	} else {
+		crypto.getRandomValues(bytes);
+	}
+	return bytes;
 }
 
-const randomBytes = (size, cb, buf) => {
-  if (typeof cb === "function") {
-    let err = null;
+const randomBytes = (size, cb) => {
+	if (typeof cb === "function") {
+		let err = null;
 		let bytes;
 		try {
-      bytes = generateRandomBytes(size);
-    } catch (e) {
-      //NodeJS nonsense
-      //If the size is out of range it will throw sync, otherwise throw async
-      if (
-        e instanceof RangeError &&
-        e.message.includes('The value of "size" is out of range')
-      ) {
-        throw e;
-      } else {
-        err = e;
-      }
-    }
-    setTimeout(() => {
-      if (err) {
-        cb(err);
-      } else {
-        cb(null, bytes);
-      }
-    }, 0);
-  } else {
-    return generateRandomBytes(size);
-  }
+			bytes = generateRandomBytes(size);
+		} catch (e) {
+			//NodeJS nonsense
+			//If the size is out of range it will throw sync, otherwise throw async
+			if (
+				e instanceof RangeError &&
+				e.message.includes('The value of "size" is out of range')
+			) {
+				throw e;
+			} else {
+				err = e;
+			}
+		}
+		setTimeout(() => {
+			if (err) {
+				cb(err);
+			} else {
+				cb(null, bytes);
+			}
+		}, 0);
+	} else {
+		return generateRandomBytes(size);
+	}
 };
 
 // SHA256
@@ -101,4 +143,4 @@ const createHmac = (algorithm, k) => {
 	return new Hmac(k);
 };
 
-export { createHmac, randomBytes };
+export { createHmac, randomBytes, ZeroableUint8Array };

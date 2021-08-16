@@ -2,8 +2,7 @@
 import { BigInteger } from "https://taisukef.github.io/jsbn-es/BigInteger.js";
 import { ECPointFp } from "./jsbn/ec.js";
 import * as Curves from "./jsbn/sec.js";
-import { createHmac, randomBytes } from "./crypto.js";	
-import { Buffer } from "https://taisukef.github.io/buffer/Buffer.js";
+import { createHmac, randomBytes, ZeroableUint8Array } from "./crypto.js";	
 
 /*** Static functions ***/
 
@@ -49,14 +48,17 @@ var PublicKey = exports.PublicKey = function(curve, Q, buf) {
 	this.Q = Q;
 	
 	if(buf) {
+		if (typeof buf !== 'ZeroableUint8Array') {
+			throw new Error('PublicKey only accepts `ZeroableUint8Array`');
+		}
 		this.buffer = buf;
 	} else {
 		var bytes = exports.getBytesLength(curve),
 			size = (bytes * 2);
 
-		this.buffer = new Buffer(size);
-		fillBuffer(this.Q.getX().toBigInteger().toString(16), bytes, this.buffer, 0);
-		fillBuffer(this.Q.getY().toBigInteger().toString(16), bytes, this.buffer, bytes);
+		this.buffer = new ZeroableUint8Array(size);
+		this.buffer.writeHexString(this.Q.getX().toBigInteger().toString(16).padStart(2, '0'), 0, bytes);
+		this.buffer.writeHexString(this.Q.getY().toBigInteger().toString(16).padStart(2, '0'), bytes, bytes);
 	}
 };
 
@@ -86,7 +88,7 @@ PublicKey.fromBuffer = function(curve, buf) {
 //		y = this.Q.getY().toBigInteger();
 //
 //	var xBa = hexToBuffer(x.toString(16), 'hex'),
-//	buf = new Buffer(xBa.length+1);
+//	buf = new ZeroableUint8Array(xBa.length+1);
 //
 //	if (y.isEven())
 //		buf[0] = HEADER_X_EVEN;
@@ -122,6 +124,9 @@ PublicKey.prototype.verifySignature = function(hash, signature) {
 	return v.equals(r);
 };
 
+PublicKey.prototype.zero = function() {
+	this.buffer.zero();
+};
 
 /*** PrivateKey class ***/
 
@@ -130,19 +135,30 @@ var PrivateKey = exports.PrivateKey = function(curve, key, buf) {
 	this.d = key;
 	
 	if(buf) {
+		if (typeof buf !== 'ZeroableUint8Array') {
+			throw new Error('PrivateKey only accepts `ZeroableUint8Array`');
+		}
 		this.buffer = buf;
 		this._size = buf.length;
 	} else {
 		this._size = exports.getBytesLength(curve);
-		this.buffer = zeroBuffer(key.toString(16), this._size);
+		this.buffer = ZeroableUint8Array.fromHexString(key.toString(16).padStart(2, '0'), this._size);
 	}
 };
 
 PrivateKey.generate = function(curve, r) {
-	r = new BigInteger(r || exports.generateR(curve));
+	if (!r) {
+		r = exports.generateR(curve);
+	}
+
+	var bi = new BigInteger(r);
+	//use `zero()` if we have it
+	if (typeof r.zero === 'function') {
+		r.zero();
+	}
 	
 	var n1 = curve.getN().subtract(BigInteger.ONE),
-	priv = r.mod(n1).add(BigInteger.ONE);
+	priv = bi.mod(n1).add(BigInteger.ONE);
 	
 	return new PrivateKey(curve, priv);
 };
@@ -167,8 +183,12 @@ PrivateKey.prototype.deriveSharedSecret = function(publicKey) {
 	if(!publicKey || !publicKey.Q)
 		throw new Error('publicKey is invaild');
 	
-    var S = publicKey.Q.multiply(this.d);
-    return zeroBuffer(S.getX().toBigInteger().toString(16), this._size);
+	var S = publicKey.Q.multiply(this.d);
+	return ZeroableUint8Array.fromHexString(S.getX().toBigInteger().toString(16).padStart(2, '0'), this._size);
+};
+
+PrivateKey.prototype.zero = function() {
+	this.buffer.zero();
 };
 
 PrivateKey.prototype.sign = function(hash, algorithm) {
@@ -178,7 +198,7 @@ PrivateKey.prototype.sign = function(hash, algorithm) {
 		throw new Error('hash algorithm is required');
 	
 	var n = this.curve.getN(),
-	e = new BigInteger(hash.toString('hex'), 16),
+	e = new BigInteger(hash.toString(16).padStart(2, '0'), 16),
 	length = exports.getBytesLength(this.curve);
 	
 	do {
@@ -197,43 +217,19 @@ PrivateKey.prototype.sign = function(hash, algorithm) {
 /*** local helpers ***/
 
 var DER_SEQUENCE = 0x30,
-	DER_INTEGER = 0x02;
-
-function hexToBuffer(hex) {
-	if(hex.length % 2 === 1)
-		hex = '0' + hex;
-	
-	return new Buffer(hex, 'hex');
-}
-
-function zeroBuffer(hex, bytes) {
-	return fillBuffer(hex, bytes, new Buffer(bytes), 0);
-}
-
-function fillBuffer(hex, bytes, buf, start) {
-	if(hex.length % 2 === 1)
-		hex = '0' + hex;
-	
-	var length = (hex.length * 0.5),
-	pos = start + bytes-length;
-	
-	buf.fill(0, start, pos);
-	buf.write(hex, pos, length, 'hex');
-	
-	return buf;
-}
+		DER_INTEGER = 0x02;
 
 // generate K value based on RFC6979
 function deterministicGenerateK(hash, key, algorithm, length) {	
-	var v = new Buffer(length),
-		k = new Buffer(length);
+	var v = new Uint8Array(length),
+		k = new Uint8Array(length);
 
 	v.fill(1);
 	k.fill(0);
 	
 	var hmac = createHmac(algorithm, k);
 	hmac.update(v);
-	hmac.update(new Buffer([0]));
+	hmac.update(new Uint8Array([0]));
 	hmac.update(key);
 	hmac.update(hash);
 	k = hmac.digest();
@@ -244,7 +240,7 @@ function deterministicGenerateK(hash, key, algorithm, length) {
 	
 	hmac = createHmac(algorithm, k);
 	hmac.update(v);
-	hmac.update(new Buffer([1]));
+	hmac.update(new Uint8Array([1]));
 	hmac.update(key);
 	hmac.update(hash);
 	k = hmac.digest();
@@ -261,10 +257,10 @@ function deterministicGenerateK(hash, key, algorithm, length) {
 }
 
 function serializeSig(r, s) {
-	var rBa = hexToBuffer(r.toString(16), 'hex');
-	var sBa = hexToBuffer(s.toString(16), 'hex');
+	var rBa = ZeroableUint8Array.fromHexString(r.toString(16).padStart(2, '0'), 32);
+	var sBa = ZeroableUint8Array.fromHexString(s.toString(16).padStart(2, '0'), 32);
 	
-	var buf = new Buffer(6 + rBa.length + sBa.length),
+	var buf = new ZeroableUint8Array(6 + rBa.length + sBa.length),
 	end = buf.length - sBa.length;
 	
 	buf[0] = DER_SEQUENCE;
@@ -272,11 +268,14 @@ function serializeSig(r, s) {
 	
 	buf[2] = DER_INTEGER;
 	buf[3] = rBa.length;
-	rBa.copy(buf, 4);
+	buf.set(rBa, 4)
 	
 	buf[end-2] = DER_INTEGER;
 	buf[end-1] = sBa.length;
-	sBa.copy(buf, end);
+	buf.set(sBa, end);
+	
+	rBa.zero();
+	sBa.zero();
 
 	return buf;
 }
@@ -300,10 +299,15 @@ function deserializeSig(buf) {
 	
 	var sBa = buf.slice(pos+1, pos+1+buf[pos]);
 	
-	return {
-		r: new BigInteger(rBa.toString('hex'), 16),
-		s: new BigInteger(sBa.toString('hex'), 16)
+	const out = {
+		r: new BigInteger(rBa.toHexString(), 16),
+		s: new BigInteger(sBa.toHexString(), 16)
 	};
+
+	rBa.zero();
+	sBa.zero();
+
+	return out;
 }
 
 const ECDH = exports;
