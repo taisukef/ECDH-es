@@ -106,22 +106,20 @@ PublicKey.prototype.verifySignature = function(hash, signature) {
 	n = this.curve.getN(),
 	G = this.curve.getG();
 
-    if(r.compareTo(BigInteger.ONE) < 0 || r.compareTo(n) >= 0)
+	if(r.compareTo(BigInteger.ONE) < 0 || r.compareTo(n) >= 0)
 		return false;
 
-    if(s.compareTo(BigInteger.ONE) < 0 || s.compareTo(n) >= 0)
+	if(s.compareTo(BigInteger.ONE) < 0 || s.compareTo(n) >= 0)
 		return false;
 
-    var c = s.modInverse(n),
-	u1 = e.multiply(c).mod(n),
-	u2 = r.multiply(c).mod(n),
-	
-	// TODO we may want to use Shamir's trick here:
-	point = G.multiply(u1).add(Q.multiply(u2)),
-	
-	v = point.getX().toBigInteger().mod(n);
+	var c = s.modInverse(n),
+		u1 = e.multiply(c).mod(n),
+		u2 = r.multiply(c).mod(n),
+		// TODO we may want to use Shamir's trick here:
+		point = G.multiply(u1).add(Q.multiply(u2)),
+		v = point.getX().toBigInteger().mod(n);
 
-    return v.equals(r);
+	return v.equals(r);
 };
 
 
