@@ -51,6 +51,10 @@ class ZeroableUint8Array extends Uint8Array {
 	}
 
 	static fromHexString(hexString, length) {
+		if (!length) {
+			throw new Error("`length` is required");
+		}
+
 		var za = new ZeroableUint8Array(length);
 		za.writeHexString(hexString, 0, length);
 		return za;
