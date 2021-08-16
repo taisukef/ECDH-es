@@ -13,6 +13,8 @@ crypto.createHmac = (algorithm, k) => {
 
 import { SHA256 } from "https://taisukef.github.io/sha256-es/SHA256.js";
 
+var G_ZEROBUFFERS = [];
+var G_BUFFER_DEBUG = false;
 
 class ZeroableUint8Array extends Uint8Array {
 	constructor(...args) {
@@ -29,8 +31,26 @@ class ZeroableUint8Array extends Uint8Array {
 		return za;
 	}
 
+	static setDebug(bool) {
+		G_BUFFER_DEBUG = bool;
+	}
+
+	static debug() {
+		if (G_ZEROBUFFERS.length) {
+			console.log(G_ZEROBUFFERS[0].loc);
+			throw new Error("Did not `zero()` all `ZeroableUint8Array`!");
+		}
+	}
+
 	zero() {
 		this.fill(0);
+		if (!G_BUFFER_DEBUG) return;
+		const idx = G_ZEROBUFFERS.indexOf( this );
+		if (idx > -1) {
+			G_ZEROBUFFERS.splice(idx, 1);
+		} else {
+			throw new Error("ZeroableUint8Array was already zeroed-out");
+		}
 	}
 
 	writeHexString(hexString, pos, length) {

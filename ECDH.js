@@ -36,6 +36,9 @@ exports.generateKeys = function(curve, r) {
 	};
 };
 
+//debug ZeroableUint8Array -- should not throw
+exports.zeroSetDebug = ZeroableUint8Array.setDebug;
+exports.zeroDebug = ZeroableUint8Array.debug;
 
 /*** PublicKey class ***/
 
