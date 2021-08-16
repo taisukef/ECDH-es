@@ -13,6 +13,31 @@ crypto.createHmac = (algorithm, k) => {
 
 import { SHA256 } from "https://taisukef.github.io/sha256-es/SHA256.js";
 
+//Detect if safe to run!
+{
+	var safe = false;
+	if (typeof process !== 'undefined' && !!process.versions && !!process.versions.v8) {
+		// V8 is considered safe because Uint8Array's
+		// backing stores are allocated externally to
+		// the heap and never move.
+		safe = true;
+	} else if (typeof Deno !== 'undefined') {
+		//Deno is based on V8
+		safe = true;
+	} else if (typeof window !== 'undefined' && !!window.navigator && !!window.navigator.userAgent.match(/Chrome/)) {
+		//Chrome is based on V8
+		safe = true;
+	}
+
+	//X:TODO check the implementation of other engines
+
+	if (!safe) {
+		console.warn("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		console.warn("!!! This environment is not considered safe! USE WITH EXTREME CAUTION. !!!");
+		console.warn("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+	}
+}
+
 var G_ZEROBUFFERS = [];
 var G_BUFFER_DEBUG = false;
 
