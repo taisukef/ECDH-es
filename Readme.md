@@ -1,6 +1,8 @@
 # ECDH-es
 
-Pure JavaScript ES module implementation of ECDH and ECDSA for browsers and [Deno](https://deno.langd/).
+Pure JavaScript ES module implementation of ECDH and ECDSA for browsers and [Deno](https://deno.land/).
+
+🚨 **Warning** 🚨 This library has not received any formal audit and is not considered safe for production use!
 
 ## Usage
 
@@ -15,9 +17,8 @@ console.log(keys);
 
 For usage details see the examples in the [examples](examples/) folder.
 
-## Devendencies
+## Dependencies
 
-- [Buffer](https://github.com/taisukef/buffer)
 - [SHA256](https://github.com/taisukef/sha256-es)
 - [BigInteger](https://github.com/taisukef/jsbn-es)
 - [Crypto.getRandomValues()](https://developer.mozilla.org/ja/docs/Web/API/Crypto/getRandomValues)
