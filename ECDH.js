@@ -50,14 +50,14 @@ var PublicKey = exports.PublicKey = function(curve, Q, buf) {
 	this.curve = curve;
 	this.Q = Q;
 	
-	if(buf) {
-		if (typeof buf !== 'ZeroableUint8Array') {
+	if (buf) {
+		if (!(buf instanceof ZeroableUint8Array)) {
 			throw new Error('PublicKey only accepts `ZeroableUint8Array`');
 		}
 		this.buffer = buf;
 	} else {
-		var bytes = exports.getBytesLength(curve),
-			size = (bytes * 2);
+		const bytes = exports.getBytesLength(curve);
+		const size = bytes * 2;
 
 		this.buffer = new ZeroableUint8Array(size);
 		this.buffer.writeHexString(this.Q.getX().toBigInteger().toString(16).padStart(2, '0'), 0, bytes);
@@ -66,20 +66,22 @@ var PublicKey = exports.PublicKey = function(curve, Q, buf) {
 };
 
 PublicKey.fromBuffer = function(curve, buf) {
-	var bytes = exports.getBytesLength(curve),
-		size = (bytes * 2);
+	const bytes = exports.getBytesLength(curve);
+	const size = bytes * 2;
 
-	if(buf.length !== size)
+	if (buf.length !== size)
 		throw new Error('Invaild buffer length');
 
-	var x = buf.slice(0, bytes), // skip the 04 for uncompressed format
-		y = buf.slice(bytes),
-		c = curve.getCurve(),
+	const x = buf.slice(0, bytes); // skip the 04 for uncompressed format
+	const y = buf.slice(bytes);
+	const c = curve.getCurve();
 
-	P = new ECPointFp(c, 
+	const P = new ECPointFp(c, 
 		c.fromBigInteger(new BigInteger(x.toString('hex'), 16)), 
 		c.fromBigInteger(new BigInteger(y.toString('hex'), 16))
 	);
+	x.zero();
+	y.zero();
 		
 	return new PublicKey(curve, P, buf);
 };
@@ -138,7 +140,7 @@ var PrivateKey = exports.PrivateKey = function(curve, key, buf) {
 	this.d = key;
 	
 	if(buf) {
-		if (typeof buf !== 'ZeroableUint8Array') {
+		if (!(buf instanceof ZeroableUint8Array)) {
 			throw new Error('PrivateKey only accepts `ZeroableUint8Array`');
 		}
 		this.buffer = buf;
@@ -314,4 +316,4 @@ function deserializeSig(buf) {
 }
 
 const ECDH = exports;
-export { ECDH };
+export { ECDH, ZeroableUint8Array };
