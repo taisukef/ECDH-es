@@ -15,7 +15,7 @@ console.log(keys);
 
 For usage details see the examples in the [examples](examples/) folder.
 
-## Devendencies
+## Dependencies
 
 - [Buffer](https://github.com/taisukef/buffer)
 - [SHA256](https://github.com/taisukef/sha256-es)
