@@ -1,5 +1,8 @@
 import { ECDH } from "../ECDH.js";
 
+//enable debugging
+ECDH.zeroSetDebug(true);
+
 // Pick some curve
 const type = "secp256r1";
 const curve = ECDH.getCurve(type);
@@ -16,3 +19,9 @@ console.log('private key length:', privateKey.buffer.length);
 console.log('private key:', privateKey.buffer.toString('hex'));
 console.log('public key length:', publicKey.buffer.length);
 console.log('public key:', publicKey.buffer.toString('hex'));
+
+privateKey.zero();
+publicKey.zero();
+
+//debug ECDH -- should not throw!
+ECDH.zeroDebug();

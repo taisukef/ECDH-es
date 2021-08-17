@@ -1,6 +1,9 @@
 import { ECDH } from "../ECDH.js";
 import { SHA256 } from "https://taisukef.github.io/sha256-es/SHA256.js";
 
+//enable debugging
+ECDH.zeroSetDebug(true);
+
 // Pick some curve
 //const type = "secp256k1";
 const type = "secp256r1";
@@ -28,3 +31,13 @@ console.log('Signature:', signature.toString('hex'));
 // Verify it with Alice public key
 const valid = aliceKeys.publicKey.verifySignature(hash, signature);
 console.log('Signature is', valid ? 'valid :)' : 'invalid!!');
+
+//zero-out all secure surfaces
+
+signature.zero();
+
+aliceKeys.publicKey.zero();
+aliceKeys.privateKey.zero();
+
+//debug ECDH -- should not throw!
+ECDH.zeroDebug();
