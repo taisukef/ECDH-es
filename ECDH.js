@@ -3,6 +3,7 @@ import { BigInteger } from "https://taisukef.github.io/jsbn-es/BigInteger.js";
 import { ECPointFp } from "./jsbn/ec.js";
 import * as Curves from "./jsbn/sec.js";
 import { createHmac, randomBytes, ZeroableUint8Array } from "./crypto.js";	
+import { hex } from "https://code4sabae.github.io/js/hex.js";
 
 /*** Static functions ***/
 
@@ -105,26 +106,33 @@ PublicKey.fromBuffer = function(curve, buf) {
 //};
 
 PublicKey.prototype.verifySignature = function(hash, signature) {
-	var data = deserializeSig(signature),
-	r = data.r,
-	s = data.s,
-	Q = this.Q,
-	e = new BigInteger(hash.toString('hex'), 16),
-	n = this.curve.getN(),
-	G = this.curve.getG();
+	if (!hash || !hash.length) {
+		throw new Error('hash is invaild');
+	}
+	if (!(hash instanceof Uint8Array)) {
+		throw new Error("hash is not instance of Uint8Array");
+	}
+	const data = deserializeSig(signature);
+	const r = data.r;
+	const s = data.s;
+	const Q = this.Q;
+	//const e = new BigInteger(hash.toString('hex'), 16);
+	const e = new BigInteger(hex.fromBin(hash), 16);
+	const n = this.curve.getN();
+	const G = this.curve.getG();
 
-	if(r.compareTo(BigInteger.ONE) < 0 || r.compareTo(n) >= 0)
+	if (r.compareTo(BigInteger.ONE) < 0 || r.compareTo(n) >= 0)
 		return false;
 
-	if(s.compareTo(BigInteger.ONE) < 0 || s.compareTo(n) >= 0)
+	if (s.compareTo(BigInteger.ONE) < 0 || s.compareTo(n) >= 0)
 		return false;
 
-	var c = s.modInverse(n),
-		u1 = e.multiply(c).mod(n),
-		u2 = r.multiply(c).mod(n),
+	const c = s.modInverse(n);
+	const u1 = e.multiply(c).mod(n);
+	const u2 = r.multiply(c).mod(n);
 		// TODO we may want to use Shamir's trick here:
-		point = G.multiply(u1).add(Q.multiply(u2)),
-		v = point.getX().toBigInteger().mod(n);
+	const point = G.multiply(u1).add(Q.multiply(u2));
+	const v = point.getX().toBigInteger().mod(n);
 
 	return v.equals(r);
 };
@@ -197,14 +205,20 @@ PrivateKey.prototype.zero = function() {
 };
 
 PrivateKey.prototype.sign = function(hash, algorithm) {
-	if(!hash || !hash.length)
+	if (!hash || !hash.length) {
 		throw new Error('hash is invaild');
-	if(!algorithm)
+	}
+	if (!(hash instanceof Uint8Array)) {
+		throw new Error("hash is not instance of Uint8Array");
+	}
+	if (!algorithm) {
 		throw new Error('hash algorithm is required');
+	}
 	
-	var n = this.curve.getN(),
-	e = new BigInteger(hash.toString(16).padStart(2, '0'), 16),
-	length = exports.getBytesLength(this.curve);
+	const n = this.curve.getN();
+	//const e = new BigInteger(hash.toString(16).padStart(2, '0'), 16);
+	const e = new BigInteger(hex.fromBin(hash), 16);
+	const length = exports.getBytesLength(this.curve);
 	
 	do {
 		var k = deterministicGenerateK(hash, this.buffer, algorithm, length),
